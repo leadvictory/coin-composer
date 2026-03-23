@@ -242,45 +242,63 @@ def create_coin_showcase(background_path, front_coin, back_coin, coin_id):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+
     front_original = back_original = None
     front_result = back_result = None
     final_result = None
 
     if request.method == "POST":
-        # inputs
-        front_file = request.files.get("front")
-        back_file = request.files.get("back")
+
+        # get two files from single upload input
+        files = request.files.getlist("coins")
+
         coin_id = request.form.get("coin_id", "").strip()
 
-        if not front_file or not back_file or not coin_id:
-            return render_template("index.html", error="Please upload both images and enter an identification number.")
+        # validation
+        if len(files) != 2 or coin_id == "":
+            return render_template(
+                "index.html",
+                error="Please upload TWO images and enter an identification number."
+            )
 
-        # save uploads
+        # first file = LEFT coin
+        front_file = files[0]
+
+        # second file = RIGHT coin
+        back_file = files[1]
+
         front_path = os.path.join(UPLOAD_FOLDER, "front.png")
         back_path = os.path.join(UPLOAD_FOLDER, "back.png")
+
         front_file.save(front_path)
         back_file.save(back_path)
 
-        # background remove
+        # remove background
         front_img = remove(Image.open(front_path))
         back_img = remove(Image.open(back_path))
 
-        # center
+        # center coins
         front_img = center_coin(front_img)
         back_img = center_coin(back_img)
 
         # save extracted
         front_result_path = os.path.join(RESULT_FOLDER, "front_coin.png")
         back_result_path = os.path.join(RESULT_FOLDER, "back_coin.png")
+
         front_img.save(front_result_path)
         back_img.save(back_result_path)
 
-        # compose final
-        final = create_coin_showcase(BACKGROUND_PATH, front_img, back_img, coin_id)
+        # create final image
+        final = create_coin_showcase(
+            BACKGROUND_PATH,
+            front_img,
+            back_img,
+            coin_id
+        )
+
         final_result_path = os.path.join(RESULT_FOLDER, "final_coin.png")
         final.save(final_result_path)
 
-        # set template vars
         front_original = front_path
         back_original = back_path
         front_result = front_result_path
@@ -295,7 +313,6 @@ def index():
         back_result=back_result,
         final_result=final_result
     )
-
 
 if __name__ == "__main__":
     # On Windows + Py3.12: avoid socket/reloader issues
