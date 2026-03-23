@@ -316,4 +316,4 @@ def index():
 
 if __name__ == "__main__":
     # On Windows + Py3.12: avoid socket/reloader issues
-    app.run(debug=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
