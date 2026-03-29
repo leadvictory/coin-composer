@@ -11,8 +11,8 @@ RESULT_FOLDER = "static/results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
-BACKGROUND_PATH = "background.jpeg"  # put it next to app.py
-
+background_file = request.form.get("background", "background.jpeg")
+background_path = os.path.join(background_file)
 
 def _load_font(size: int):
     """
@@ -290,7 +290,7 @@ def index():
 
         # create final image
         final = create_coin_showcase(
-            BACKGROUND_PATH,
+            background_path,
             front_img,
             back_img,
             coin_id
